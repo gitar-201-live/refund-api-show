@@ -18,6 +18,7 @@ uvicorn app.main:app --reload
 | GET | `/charges/{id}` | Fetch a charge |
 | POST | `/charges/{id}/refund` | Refund a charge in full |
 | GET | `/charges/{id}/refunds` | List refunds for a charge |
+| GET | `/charges/{id}/refund-summary` | Refund count, amount refunded, and amount remaining |
 
 ### Refund reason codes
 

@@ -4,7 +4,7 @@ from app import ledger
 from app.codes import RefundCreate
 from app.deps import get_store
 from app.models import Charge, Refund
-from app.schemas import RefundOut
+from app.schemas import RefundOut, RefundSummaryOut
 from app.store import Store
 
 router = APIRouter()
@@ -38,3 +38,18 @@ def list_refunds(charge_id: str, store: Store = Depends(get_store)) -> list[Refu
     if store.get_charge(charge_id) is None:
         raise HTTPException(404, "Charge not found")
     return store.list_refunds(charge_id)
+
+
+@router.get("/charges/{charge_id}/refund-summary", response_model=RefundSummaryOut)
+def refund_summary(charge_id: str, store: Store = Depends(get_store)) -> RefundSummaryOut:
+    """How much of a charge has been refunded, and how much is left."""
+    charge = store.get_charge(charge_id)
+    if charge is None:
+        raise HTTPException(404, "Charge not found")
+    count, refunded = store.refund_totals(charge_id)
+    return RefundSummaryOut(
+        charge_id=charge_id,
+        refund_count=count,
+        refunded_cents=refunded,
+        remaining_cents=charge.amount_cents - refunded,
+    )
